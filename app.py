@@ -25,28 +25,80 @@ def signup():
   connection = pymysql.connect(host="localhost", user="root", password="",database="sokogardenonline")
 
   # create a cursor to execute the sql queries
- cursor = connection.cursor()
+  cursor = connection.cursor()
 
 
  #structure an sql to insert the details received from the form
  # The %s is a placeholder. It stands in place of actual values to be replaced later on
- sql = "INSERT INTO users(username,email,phone,password) VALUES(%s, %s, %s, %s)"
+  sql = "INSERT INTO users(username,email,phone,password) VALUES(%s, %s, %s, %s)"
 
  # create a tuple that will hold all the data gotten from the form
- data = (username, email, phone, password)
+  data = (username, email, phone, password)
 
  # by use of the cursor, execute the sql as you replace with the actual values
- cursor.execute(sql, data)
+  cursor.execute(sql, data)
 
  # commit the changes to the database
- connection.commit()
+  connection.commit()
 
- return jsonify({"message" : "User registered successfully"})
-
-
+  return jsonify({"message" : "User registered successfully"})
 
 
+# below is the login/sign in route.
+@app.route("/api/signin", methods=["POST"])
+def signin():
+    if request.method=="POST":
+      #extract the two credentials entered
+      email = request.form["email"]
+      password = request.form["password"]
+
+      #print out the details entered
+      #print(email, password)
+
+      #create/establish a connection to the database
+      connection = pymysql.connect(host="localhost", user="root", password="", database="sokogardenonline")
+
+      #create a cursor 
+      cursor = connection.cursor(pymysql.cursors.DictCursor)
+
+      #structure the sql query that will check whether the email and pasword entered are correct
+      sql = "SELECT * FROM users WHERE email = %s AND password = %s"
 
 
-# run the application
+      #  put the data received from the form into a tuple
+      data = (email, password)
+
+      # by use of the cursor execute the sql
+      cursor.execute(sql, data)
+
+      # check whether there are rows returned and store the same on a variable
+      count = cursor.rowcount
+      #print(count)
+
+      #if there are records return it means th
+      if count == 0:
+        return jsonify({"message" : "login failed"})
+      else:
+        #there must be a user so we create a variable that will hold the details of the user fetched from the dtabase
+        user = cursor.fetchone()
+        #return the details to the frontend as well as a message
+        return jsonify({"mesaage" : "User logged in successfully", "user":user})
+
+
+      # if there are records returned it means the email and the password are correct otherwise it means they are wrong
+       
+
+
+
+
+
+    
+
+
+
+
+
+
+
+# run the application 
 app.run(debug=True)
