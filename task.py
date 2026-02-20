@@ -1,18 +1,15 @@
 # import flask and its components
 from flask import *
-import os
 
 # import the pymysql module - it helps us to create a connection between python flask and mysql database
 import pymysql
 
-
+# import bcrypt
+import bcrypt
 
 # create a flask application and give it a name
 app = Flask(__name__)
 
-
-#configure the location to where your product images will be saved on your application.
-app.config["UPLOAD_FOLDER"] = "static/images"
 
 # below is the signup route
 @app.route("/api/signup", methods = ["POST"])
@@ -27,7 +24,9 @@ def signup():
   #by use of the print function lets print all those details sent with the upcoming request
   #print(username, email, password, phone)
 
- 
+ # hash the password using bcrypt
+  hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+
   # establish a connection between flask/python and mysql
   connection = pymysql.connect(host="localhost", user="root", password="",database="sokogardenonline")
 
@@ -40,7 +39,7 @@ def signup():
   sql = "INSERT INTO users(username,email,phone,password) VALUES(%s, %s, %s, %s)"
 
  # create a tuple that will hold all the data gotten from the form
-  data = (username, email, phone, password)
+  data = (username, email, phone, hashed_password)
 
  # by use of the cursor, execute the sql as you replace with the actual values
   cursor.execute(sql, data)
@@ -73,7 +72,7 @@ def signin():
 
 
       #  put the data received from the form into a tuple
-      data = (email, password)
+      data = (email,)
 
       # by use of the cursor execute the sql
       cursor.execute(sql, data)
@@ -88,9 +87,12 @@ def signin():
     else:
         user = cursor.fetchone()
     
-
+    # verify the password against the hash in the database
+    if bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
+        user.pop("password")  # hide password from response
         return jsonify({"mesaage" : "User logged in successfully", "user": user})
-   
+    else:
+        return jsonify({"message" : "login failed - wrong password"})
 
 
       # if there are records returned it means the email and the password are correct otherwise it means they are wrong
@@ -101,49 +103,7 @@ def signin():
 
 
   
-#below is the route for adding products
-@app.route("/api/add_product", methods=["POST"])
-def Addproducts():
-   if request.method == "POST":
-      #extract the data entered on the form
-      product_name = request.form["product_name"]
-      product_description = request.form["product_description"]
-      product_cost = request.form["product_cost"]
-      #for the product photo, we shall fetch it from files as shown below.
-      product_photo  = request.files["product_photo"]
 
-      #extract the filename of the producy_photo
-      filename = product_photo.filename
-      #by use of the os module we can extract the file path where the image is currently saved
-      photo_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        # print("This is the photo path: ", photo_path)
-
-      #save the product_photo image into the new location
-      product_photo.save(photo_path)
-
-      #print them out to test whether we are receiving the details sent with the request
-      #print(product_name, product_description, product_cost, product_photo)
-      #establish a connection to the db
-      connection = pymysql.connect(host="localhost", user="root", password="",database="sokogardenonline")
-
-      #create a cursor
-      cursor  = connection.cursor()
-
-      #structure the sql query that will insert the details from the form
-      sql = "INSERT INTO product_details(product_name,product_description,product_cost,product_photo) VALUES(%s, %s, %s, %s)"
-
-      # create a tuple that will hold all the data which are held onto the different variables declared.
-      data = (product_name,product_description,product_cost,filename)
-
-      # by use of the cursor, execute the sql as you replace with the actual values
-      cursor.execute(sql, data)
-
-      # commit the changes to the database
-      connection.commit()
-
-      return jsonify({"message" : "Product added successfully"})
-      
-      #return jsonify({"message" : "Add product route accessed"})
 
 
 
