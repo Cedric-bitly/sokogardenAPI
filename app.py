@@ -1,6 +1,9 @@
 # import flask and its components
 from flask import *
 import os
+from flask_cors import CORS
+
+# CORS => Cross Origin Resource Sharing
 
 # import the pymysql module - it helps us to create a connection between python flask and mysql database
 import pymysql
@@ -9,7 +12,7 @@ import pymysql
 
 # create a flask application and give it a name
 app = Flask(__name__)
-
+CORS(app)
 
 #configure the location to where your product images will be saved on your application.
 app.config["UPLOAD_FOLDER"] = "static/images"
@@ -29,7 +32,7 @@ def signup():
 
  
   # establish a connection between flask/python and mysql
-  connection = pymysql.connect(host="localhost", user="root", password="",database="sokogardenonline")
+  connection = pymysql.connect(host="mysql-cedric22a.alwaysdata.net", user="cedric22a", password="j9B12Q12",database="cedric22a_sokogarden")
 
   # create a cursor to execute the sql queries
   cursor = connection.cursor()
@@ -63,13 +66,13 @@ def signin():
       #print(email, password)
 
       #create/establish a connection to the database
-      connection = pymysql.connect(host="localhost", user="root", password="", database="sokogardenonline")
+      connection = pymysql.connect(host="mysql-cedric22a.alwaysdata.net", user="cedric22a", password="j9B12Q12", database="cedric22a_sokogarden")
 
       #create a cursor 
       cursor = connection.cursor(pymysql.cursors.DictCursor)
 
       #structure the sql query that will check whether the email and pasword entered are correct
-      sql = "SELECT * FROM users WHERE email = %s"
+      sql = "SELECT * FROM users WHERE email = %s and password=%s "
 
 
       #  put the data received from the form into a tuple
@@ -124,7 +127,7 @@ def Addproducts():
       #print them out to test whether we are receiving the details sent with the request
       #print(product_name, product_description, product_cost, product_photo)
       #establish a connection to the db
-      connection = pymysql.connect(host="localhost", user="root", password="",database="sokogardenonline")
+      connection = pymysql.connect(host="mysql-cedric22a.alwaysdata.net", user="cedric22a", password="j9B12Q12",database="cedric22a_sokogarden")
 
       #create a cursor
       cursor  = connection.cursor()
@@ -151,7 +154,7 @@ def Addproducts():
 @app.route("/api/get_products", methods=["GET"])
 def Getproducts():
     #establish a connection to the db
-    connection = pymysql.connect(host="localhost",user="root",password="",database="sokogardenonline")
+    connection = pymysql.connect(host="mysql-cedric22a.alwaysdata.net",user="cedric22a",password="j9B12Q12",database="cedric22a_sokogarden")
     
     #create a cursor
     cursor = connection.cursor(pymysql.cursors.DictCursor)
@@ -232,4 +235,4 @@ def mpesa_payment():
 
 
 # run the application 
-app.run(debug=True)
+# app.run(debug=True)
