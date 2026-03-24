@@ -3,8 +3,6 @@ from flask import *
 import os
 from flask_cors import CORS
 
-# CORS => Cross Origin Resource Sharing
-
 # import the pymysql module - it helps us to create a connection between python flask and mysql database
 import pymysql
 
@@ -72,7 +70,7 @@ def signin():
       cursor = connection.cursor(pymysql.cursors.DictCursor)
 
       #structure the sql query that will check whether the email and pasword entered are correct
-      sql = "SELECT * FROM users WHERE email = %s and password=%s "
+      sql = "SELECT * FROM users WHERE email = %s"
 
 
       #  put the data received from the form into a tuple
