@@ -3,6 +3,8 @@ from flask import *
 import os
 from flask_cors import CORS
 
+# CORS => Cross Origin Resource Sharing
+
 # import the pymysql module - it helps us to create a connection between python flask and mysql database
 import pymysql
 
@@ -70,7 +72,7 @@ def signin():
       cursor = connection.cursor(pymysql.cursors.DictCursor)
 
       #structure the sql query that will check whether the email and pasword entered are correct
-      sql = "SELECT * FROM users WHERE email = %s"
+      sql = "SELECT * FROM users WHERE email = %s and password=%s "
 
 
       #  put the data received from the form into a tuple
@@ -112,6 +114,9 @@ def Addproducts():
       product_cost = request.form["product_cost"]
       #for the product photo, we shall fetch it from files as shown below.
       product_photo  = request.files["product_photo"]
+      product_category = request.form["product_category"]
+      product_discount = request.form["product_discount"]
+
 
       #extract the filename of the producy_photo
       filename = product_photo.filename
@@ -131,10 +136,10 @@ def Addproducts():
       cursor  = connection.cursor()
 
       #structure the sql query that will insert the details from the form
-      sql = "INSERT INTO product_details(product_name,product_description,product_cost,product_photo) VALUES(%s, %s, %s, %s)"
+      sql = "INSERT INTO product_details(product_name,product_description,product_cost,product_photo,product_category,product_discount) VALUES(%s, %s, %s, %s, %s, %s)"
 
       # create a tuple that will hold all the data which are held onto the different variables declared.
-      data = (product_name,product_description,product_cost,filename)
+      data = (product_name,product_description,product_cost,filename,product_category,product_discount)
 
       # by use of the cursor, execute the sql as you replace with the actual values
       cursor.execute(sql, data)
